@@ -133,6 +133,9 @@ apply_configurations() {
     if [ -f configure/.vimrc ]; then
         cp configure/.vimrc ~/.vimrc
     fi
+
+    # Source .bashrc
+    source ~/.bashrc
 }
 
 # Function to change boot target to multi-user.target
