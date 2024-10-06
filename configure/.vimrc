@@ -1,7 +1,3 @@
-if has("syntax")
-    syntax on
-endif
-
 set hlsearch
 set nu
 set autoindent
