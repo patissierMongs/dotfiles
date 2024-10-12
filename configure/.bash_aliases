@@ -34,7 +34,7 @@ alias ....='cd ../../../'
 alias ports='netstat -tulanp'
 alias ipinfo='ip addr show'
 
-# Git aliases (if git is installed)
+# Git aliases
 alias gst='git status'
 alias gco='git checkout'
 alias gb='git branch'
@@ -42,3 +42,8 @@ alias ga='git add'
 alias gc='git commit'
 alias gp='git push'
 alias gl='git log'
+
+# Docker aliases
+alias dcr='docker container run'
+alias dra='docker remove -f $(docker container ls -aq)'
+alias dls='docker ls'
