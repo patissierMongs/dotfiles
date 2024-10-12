@@ -1,2 +1,3 @@
-Repository\nhttps://mirror.kakao.com/
+Repository
+https://mirror.kakao.com/
 repolist/$dist/$major/$minor/$patch
