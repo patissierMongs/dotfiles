@@ -9,6 +9,9 @@
 # It is designed to be extensible and adaptable to different
 # Linux distributions and versions.
 
+# READ files
+source version_manager
+
 # Function to get OS information
 get_os_info() {
     if [ -f /etc/os-release ]; then
@@ -98,13 +101,13 @@ install_essential_packages() {
 
     case "$PKG_MANAGER" in
         dnf|yum)
-            $PKG_MANAGER -y install $ESSENTIAL_PACKAGES
+            $PKG_MANAGER -y install $ESSENTIAL_PACKAGES --skip-broken --allowerasing
             ;;
         apt|apt-get)
-            $PKG_MANAGER -y install $ESSENTIAL_PACKAGES
+            $PKG_MANAGER -y install $ESSENTIAL_PACKAGES --skip-broken --allowerasing
             ;;
         pacman)
-            $PKG_MANAGER -S --noconfirm $ESSENTIAL_PACKAGES
+            $PKG_MANAGER -S --noconfirm $ESSENTIAL_PACKAGES --skip-broken --allowerasing
             ;;
         *)
             echo "Unsupported package manager for installing essential packages."
@@ -263,6 +266,18 @@ update_old_repositories() {
     fi
 }
 
+source_mysetup () {
+	if [ -f $(pwd)/mySetup.sh ]; then
+		source $(pwd)/mySetup.sh
+	fi
+}
+
+docker_repo_install() {
+    if [ -f $(pwd)/repolist/docker/dockerRepoSetup.sh ]; then
+        source $(pwd)/repolist/docker/dockerRepoSetup.sh
+    fi
+}
+
 # Main script execution
 
 get_os_info
@@ -288,5 +303,9 @@ set_selinux_permissive
 change_dns
 
 synchronize_time
+
+source_mysetup
+
+docker_repo_install
 
 echo "System initialization completed successfully."

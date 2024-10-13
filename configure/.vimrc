@@ -1,14 +1,25 @@
-set hlsearch
-set nu
-set autoindent
-set ts=4
-set sts=4
-set cindent
-set laststatus=2
-set shiftwidth=4
-set showmatch
-set smartcase
-set smarttab
+set nocompatible          
+set backspace=indent,eol,start 
+
+
+set number                
+set relativenumber        
+set cursorline            
+
+
+set ignorecase            
+set smartcase             
 set smartindent
-set ruler
-set fileencodings=utf8
+set cindent
+set incsearch             
+set hlsearch              
+
+
+set tabstop=4             
+set softtabstop-=4
+set shiftwidth=4          
+set expandtab             
+
+
+set background=dark       
+

@@ -44,6 +44,16 @@ alias gp='git push'
 alias gl='git log'
 
 # Docker aliases
+alias dr='docker remove'
 alias dcr='docker container run'
 alias dra='docker remove -f $(docker container ls -aq)'
 alias dls='docker ls'
+alias dri='docker image remove $(docker image ls -aq)'
+
+# Functions
+
+## General
+mkcd () { 
+	mkdir -p "$1" && cd "$1" 
+}
+
