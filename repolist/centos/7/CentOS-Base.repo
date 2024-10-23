@@ -42,3 +42,14 @@ baseurl=https://mirror.kakao.com/centos/$releasever/fasttrack/$basearch
 gpgcheck=1
 gpgkey=https://mirror.kakao.com/centos/RPM-GPG-KEY-CentOS-7
 
+[sclo]
+name=CentOS-$releasever - sclo
+baseurl=https://mirror.kakao.com/centos/$releasever/sclo/$basearch/sclo
+gpgcheck=1
+gpgkey=https://mirror.kakao.com/centos/RPM-GPG-KEY-CentOS-7
+
+[rh]
+name=CentOS-$releasever - rh
+baseurl=https://mirror.kakao.com/centos/$releasever/sclo/$basearch/rh
+gpgcheck=0
+gpgkey=https://mirror.kakao.com/centos/RPM-GPG-KEY-CentOS-7

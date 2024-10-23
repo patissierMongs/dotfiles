@@ -10,7 +10,7 @@
 # Linux distributions and versions.
 
 # READ files
-source version_manager
+. ./version_manager
 
 # Function to get OS information
 get_os_info() {
@@ -27,11 +27,11 @@ get_os_info() {
     fi
 
     # Extract major, minor, patch version numbers
-    IFS='.' read -r OS_MAJOR_VERSION OS_MINOR_VERSION OS_PATCH_VERSION <<< "$OS_VERSION"
+    #IFS='.' read -r OS_MAJOR_VERSION OS_MINOR_VERSION OS_PATCH_VERSION <<< "$OS_VERSION"
 
     # If minor or patch version is empty, set to zero
-    OS_MINOR_VERSION=${OS_MINOR_VERSION:-0}
-    OS_PATCH_VERSION=${OS_PATCH_VERSION:-0}
+    #OS_MINOR_VERSION=${OS_MINOR_VERSION:-0}
+    #OS_PATCH_VERSION=${OS_PATCH_VERSION:-0}
 }
 
 # Function to select package manager
@@ -104,7 +104,7 @@ install_essential_packages() {
             $PKG_MANAGER -y install $ESSENTIAL_PACKAGES --skip-broken --allowerasing
             ;;
         apt|apt-get)
-            $PKG_MANAGER -y install $ESSENTIAL_PACKAGES --skip-broken --allowerasing
+            $PKG_MANAGER -y install $ESSENTIAL_PACKAGES 
             ;;
         pacman)
             $PKG_MANAGER -S --noconfirm $ESSENTIAL_PACKAGES --skip-broken --allowerasing
@@ -114,31 +114,6 @@ install_essential_packages() {
             exit 1
             ;;
     esac
-}
-
-# Function to apply configuration files
-apply_configurations() {
-    # Apply .bashrc
-    if [ -f configure/.bashrc ]; then
-        cp configure/.bashrc ~/.bashrc
-    fi
-
-    # Apply .bash_aliases
-    if [ -f configure/.bash_aliases ]; then
-        cp configure/.bash_aliases ~/.bash_aliases
-        # Source .bash_aliases in .bashrc if not already present
-        if ! grep -q "source ~/.bash_aliases" ~/.bashrc; then
-            echo "source ~/.bash_aliases" >> ~/.bashrc
-        fi
-    fi
-
-    # Apply .vimrc
-    if [ -f configure/.vimrc ]; then
-        cp configure/.vimrc ~/.vimrc
-    fi
-
-    # Source .bashrc
-    source ~/.bashrc
 }
 
 # Function to change boot target to multi-user.target
@@ -213,68 +188,41 @@ synchronize_time() {
 
 # Function to update repositories for old versions
 update_old_repositories() {
-    # List of old versions where repositories need to be updated
-    OLD_VERSIONS=("centos:6" "ubuntu:15" "debian:8" "fedora:24")
+    # Get the repository files from repolist directory
+    REPO_DIR="repolist/$OS_MAJOR_VERSION/$OS_MINOR_VERSION/$OS_PATCH_VERSION"
 
-    IS_OLD_VERSION=false
-    for VERSION in "${OLD_VERSIONS[@]}"; do
-        DISTRO=$(echo $VERSION | cut -d':' -f1)
-        VERSION_NUM=$(echo $VERSION | cut -d':' -f2)
-        if [[ "$OS_NAME" == "$DISTRO" && "$OS_MAJOR_VERSION" -le "$VERSION_NUM" ]]; then
-            IS_OLD_VERSION=true
-            break
-        fi
-    done
-
-    if [ "$IS_OLD_VERSION" = true ]; then
-        echo "Old OS version detected. Updating repositories."
-
-        # Backup existing repo files
-        if [ -d /etc/yum.repos.d ]; then
-            mkdir -p /etc/yum.repos.d.bak
-            mv /etc/yum.repos.d/*.repo /etc/yum.repos.d.bak/
-        elif [ -d /etc/apt ]; then
-            mkdir -p /etc/apt/sources.list.d.bak
-            mv /etc/apt/sources.list.d/* /etc/apt/sources.list.d.bak/ 2>/dev/null
-            mv /etc/apt/sources.list /etc/apt/sources.list.bak 2>/dev/null
-        fi
-
-        # Get the repository files from repolist directory
-        REPO_DIR="repolist/$OS_MAJOR_VERSION/$OS_MINOR_VERSION/$OS_PATCH_VERSION"
-
-        # If the exact version is not found, search in order of patch, minor, major
+    # If the exact version is not found, search in order of patch, minor, major
+    if [ ! -d "$REPO_DIR" ]; then
+        REPO_DIR="repolist/$OS_MAJOR_VERSION/$OS_MINOR_VERSION"
         if [ ! -d "$REPO_DIR" ]; then
-            REPO_DIR="repolist/$OS_MAJOR_VERSION/$OS_MINOR_VERSION"
+            REPO_DIR="repolist/$OS_MAJOR_VERSION"
             if [ ! -d "$REPO_DIR" ]; then
-                REPO_DIR="repolist/$OS_MAJOR_VERSION"
-                if [ ! -d "$REPO_DIR" ]; then
-                    echo "No suitable repository files found in repolist."
-                    return
-                fi
+                echo "No suitable repository files found in repolist."
+                return
             fi
         fi
+    fi
 
-        # Copy the repository files to the appropriate location
-        if [ -d /etc/yum.repos.d ]; then
-            cp "$REPO_DIR"/*.repo /etc/yum.repos.d/
-        elif [ -d /etc/apt ]; then
-            cp "$REPO_DIR"/*.list /etc/apt/sources.list.d/ 2>/dev/null
-            if [ -f "$REPO_DIR"/sources.list ]; then
-                cp "$REPO_DIR"/sources.list /etc/apt/sources.list
-            fi
+    # Copy the repository files to the appropriate location
+    if [ -d /etc/yum.repos.d ]; then
+        cp "$REPO_DIR"/*.repo /etc/yum.repos.d/
+    elif [ -d /etc/apt ]; then
+        cp "$REPO_DIR"/*.list /etc/apt/.s.list.d/ 2>/dev/null
+        if [ -f "$REPO_DIR"/.s.list ]; then
+            cp "$REPO_DIR"/.s.list /etc/apt/sources.list
         fi
     fi
 }
 
 source_mysetup () {
 	if [ -f $(pwd)/mySetup.sh ]; then
-		source $(pwd)/mySetup.sh
+		. $(pwd)/mySetup.sh
 	fi
 }
 
 docker_repo_install() {
     if [ -f $(pwd)/repolist/docker/dockerRepoSetup.sh ]; then
-        source $(pwd)/repolist/docker/dockerRepoSetup.sh
+        . $(pwd)/repolist/docker/dockerRepoSetup.sh
     fi
 }
 
@@ -284,7 +232,7 @@ get_os_info
 
 select_package_manager
 
-update_old_repositories
+#update_old_repositories
 
 update_repositories
 
@@ -292,15 +240,13 @@ upgrade_packages
 
 install_essential_packages
 
-apply_configurations
-
 change_boot_target
 
 disable_firewall
 
 set_selinux_permissive
 
-change_dns
+#change_dns
 
 synchronize_time
 
